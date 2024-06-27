@@ -28,7 +28,7 @@ impl HexApp {
 fn display_hex_field(egui_id: &str, ui: &mut Ui, bytes: &[u8]) {
     let width = 16;
     egui::Grid::new(egui_id)
-        .spacing(Vec2::new(0.1f32, 0.1f32))
+        .spacing(Vec2::new(-20f32, 0f32))
         .striped(true)
         .show(ui, |ui| {
             bytes.chunks(width).for_each(|row| {
