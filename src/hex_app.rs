@@ -1,5 +1,6 @@
 use egui::style::ScrollStyle;
 use egui::{Ui, Vec2};
+use egui_extras::{Column, TableBuilder};
 
 struct Pattern {
     name: String,
@@ -58,32 +59,44 @@ impl eframe::App for HexApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("hex diff test (egui UI)");
 
-            ui.spacing_mut().scroll = ScrollStyle::solid();
-            egui::ScrollArea::vertical()
-                .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysVisible)
-                .show(ui, |ui| {
-                    ui.columns(2, |columns| {
-                        columns[0].label("First column");
-
-                        columns[0].columns(2, |columns| {
+            TableBuilder::new(ui)
+                .column(Column::auto().resizable(true))
+                .column(Column::auto().resizable(true))
+                .column(Column::remainder())
+                .header(20.0, |mut header| {
+                    header.col(|ui| {
+                        ui.heading("addresses0");
+                    });
+                    header.col(|ui| {
+                        ui.heading("hex0");
+                    });
+                    header.col(|ui| {
+                        ui.heading("hex1");
+                    });
+                })
+                .body(|mut body| {
+                    body.row(30.0, |mut row| {
+                        row.col(|ui| {
                             display_address_column(
                                 "pattern0 addresses",
-                                &mut columns[0],
+                                ui,
                                 1 + &self.pattern0.as_ref().unwrap().data.len() / 16,
                             );
+                        });
+                        row.col(|ui| {
                             display_hex_field(
                                 "pattern0 hex",
-                                &mut columns[1],
+                                ui,
                                 &self.pattern0.as_ref().unwrap().data,
                             );
                         });
-
-                        columns[1].label("Second column");
-                        display_hex_field(
-                            "pattern1 hex",
-                            &mut columns[1],
-                            &self.pattern1.as_ref().unwrap().data,
-                        );
+                        row.col(|ui| {
+                            display_hex_field(
+                                "pattern1 hex",
+                                ui,
+                                &self.pattern1.as_ref().unwrap().data,
+                            );
+                        });
                     });
                 });
         });
