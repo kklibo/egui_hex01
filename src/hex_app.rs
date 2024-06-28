@@ -40,26 +40,25 @@ impl HexApp {
     fn add_body_contents(&self, body: TableBody<'_>) {
         let hex_grid_width = 16;
 
-        let mut addresses0 = (0..).map(|c| format!("{:08X}", c * hex_grid_width));
-
-        let mut pattern0 = if let Some(pattern) = &self.pattern0 {
-            pattern.data.iter()
-        } else {
-            [].iter()
-        }
-        .map(|&b| format!("{b:02X}"));
-
         let row_height = 18.0;
         let num_rows = 10_000;
         body.rows(row_height, num_rows, |mut row| {
             let row_index = row.index();
             row.col(|ui| {
-                //ui.label(addresses0.next().expect("iterator should be infinite"));
-                ui.label(format!("{row_index}"));
+                ui.label(format!("{:08X}", row_index * hex_grid_width));
             });
             row.col(|ui| {
-                (0..hex_grid_width).for_each(|_| {
-                    let s = pattern0.next().unwrap_or_else(|| "__".to_string());
+                (0..hex_grid_width).for_each(|i| {
+                    let s = if let Some(pattern) = &self.pattern0 {
+                        if let Some(&b) = pattern.data.get(i + row_index * hex_grid_width) {
+                            format!("{b:02X}")
+                        } else {
+                            "__".to_string()
+                        }
+                    } else {
+                        "xx".to_string()
+                    };
+
                     ui.label(s);
                 });
             });
