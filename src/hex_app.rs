@@ -36,7 +36,10 @@ impl HexApp {
         let hex_grid_width = 16;
 
         let row_height = 18.0;
-        let num_rows = 10_000;
+        let num_rows = 1 + std::cmp::max(
+            self.pattern0.as_ref().map(Vec::len).unwrap_or_default(),
+            self.pattern1.as_ref().map(Vec::len).unwrap_or_default(),
+        ) / hex_grid_width;
 
         body.rows(row_height, num_rows, |mut row| {
             let row_index = row.index();
