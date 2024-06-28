@@ -1,3 +1,4 @@
+use crate::diff::{self, HexCell};
 use egui::Ui;
 use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 use rand::Rng;
@@ -7,6 +8,8 @@ pub struct HexApp {
     source_name1: Option<String>,
     pattern0: Option<Vec<u8>>,
     pattern1: Option<Vec<u8>>,
+    diffs0: Vec<HexCell>,
+    diffs1: Vec<HexCell>,
 }
 
 fn random_pattern() -> Vec<u8> {
@@ -15,13 +18,29 @@ fn random_pattern() -> Vec<u8> {
 }
 
 impl HexApp {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        Self {
+    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        let mut result = Self {
             source_name0: Some("zeroes0".to_string()),
             source_name1: Some("zeroes1".to_string()),
             pattern0: Some(vec![0; 1000]),
             pattern1: Some(vec![0; 1000]),
-        }
+            diffs0: vec![],
+            diffs1: vec![],
+        };
+
+        result.update_diffs();
+        result
+    }
+
+    fn update_diffs(&mut self) {
+        let (diffs1, diffs2) =
+            if let (Some(pattern0), Some(pattern1)) = (&self.pattern0, &self.pattern1) {
+                diff::get_diffs(pattern0, pattern1, 0..100 * 16)
+            } else {
+                (vec![], vec![])
+            };
+        self.diffs0 = diffs1;
+        self.diffs1 = diffs2;
     }
 
     fn add_header_row(&mut self, mut header: TableRow<'_, '_>) {
@@ -35,6 +54,7 @@ impl HexApp {
             if ui.button("randomize").clicked() {
                 self.pattern0 = Some(random_pattern());
                 self.source_name0 = Some("random".to_string());
+                self.update_diffs();
             }
         });
         header.col(|ui| {
@@ -42,6 +62,7 @@ impl HexApp {
             if ui.button("randomize").clicked() {
                 self.pattern1 = Some(random_pattern());
                 self.source_name1 = Some("random".to_string());
+                self.update_diffs();
             }
         });
     }
