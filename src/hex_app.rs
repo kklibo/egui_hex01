@@ -1,26 +1,20 @@
 use egui::Ui;
 use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 
-struct Pattern {
-    name: String,
-    data: Vec<u8>,
-}
 pub struct HexApp {
-    pattern0: Option<Pattern>,
-    pattern1: Option<Pattern>,
+    source_name0: String,
+    source_name1: String,
+    pattern0: Option<Vec<u8>>,
+    pattern1: Option<Vec<u8>>,
 }
 
 impl HexApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            pattern0: Some(Pattern {
-                name: "zeroes0".to_string(),
-                data: vec![0; 1000],
-            }),
-            pattern1: Some(Pattern {
-                name: "zeroes1".to_string(),
-                data: vec![0; 1000],
-            }),
+            source_name0: "zeroes0".to_string(),
+            source_name1: "zeroes1".to_string(),
+            pattern0: Some(vec![0; 1000]),
+            pattern1: Some(vec![0; 1000]),
         }
     }
 }
@@ -47,10 +41,10 @@ impl HexApp {
         body.rows(row_height, num_rows, |mut row| {
             let row_index = row.index();
 
-            let add_body_hex_row = |ui: &mut Ui, pattern: &Option<Pattern>| {
+            let add_body_hex_row = |ui: &mut Ui, pattern: &Option<Vec<u8>>| {
                 (0..hex_grid_width).for_each(|i| {
                     let s = if let Some(pattern) = pattern {
-                        if let Some(&b) = pattern.data.get(i + row_index * hex_grid_width) {
+                        if let Some(&b) = pattern.get(i + row_index * hex_grid_width) {
                             format!("{b:02X}")
                         } else {
                             "__".to_string()
