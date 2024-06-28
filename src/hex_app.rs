@@ -71,31 +71,33 @@ impl HexApp {
         let hex_grid_width = 16;
 
         let row_height = 18.0;
-        let num_rows = 1 + std::cmp::max(
-            self.pattern0.as_ref().map(Vec::len).unwrap_or_default(),
-            self.pattern1.as_ref().map(Vec::len).unwrap_or_default(),
-        ) / hex_grid_width;
+        let num_rows = 1 + std::cmp::max(self.diffs0.len(), self.diffs1.len()) / hex_grid_width;
 
         body.rows(row_height, num_rows, |mut row| {
             let row_index = row.index();
 
-            let add_body_hex_row = |ui: &mut Ui, pattern: &Option<Vec<u8>>| {
+            let add_body_hex_row = |ui: &mut Ui, diffs: &Vec<HexCell>| {
                 (0..hex_grid_width).for_each(|i| {
-                    let s = pattern
-                        .as_ref()
-                        .and_then(|bytes| bytes.get(i + row_index * hex_grid_width))
-                        .map(|&b| format!("{b:02X}"))
-                        .unwrap_or_else(|| "__".to_string());
+                    let cell = diffs.get(i + row_index * hex_grid_width);
 
-                    ui.label(s);
+                    match cell {
+                        Some(&HexCell::Same { value, source_id }) => {
+                            ui.label(format!("{value:02X}"))
+                        }
+                        Some(&HexCell::Diff { value, source_id }) => {
+                            ui.label(format!("{value:02X}"))
+                        }
+                        Some(&HexCell::Blank) => ui.label("__"),
+                        None => ui.label("xx"),
+                    };
                 });
             };
 
             row.col(|ui| {
                 ui.label(format!("{:08X}", row_index * hex_grid_width));
             });
-            row.col(|ui| add_body_hex_row(ui, &self.pattern0));
-            row.col(|ui| add_body_hex_row(ui, &self.pattern1));
+            row.col(|ui| add_body_hex_row(ui, &self.diffs0));
+            row.col(|ui| add_body_hex_row(ui, &self.diffs1));
         });
     }
 }
