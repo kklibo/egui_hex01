@@ -1,4 +1,3 @@
-use egui::Vec2;
 use egui_extras::{Column, TableBody, TableBuilder};
 
 struct Pattern {
@@ -47,16 +46,10 @@ impl HexApp {
                 ui.label(format!("{row_index}"));
             });
             row.col(|ui| {
-                egui::Grid::new(format!("pattern0row{row_index}"))
-                    .spacing(Vec2::new(-20f32, 0f32))
-                    .striped(true)
-                    .show(ui, |ui| {
-                        (0..hex_grid_width).for_each(|_| {
-                            let s = pattern0.next().unwrap_or_else(|| "__".to_string());
-                            ui.label(s);
-                        });
-                        ui.end_row();
-                    });
+                (0..hex_grid_width).for_each(|_| {
+                    let s = pattern0.next().unwrap_or_else(|| "__".to_string());
+                    ui.label(s);
+                });
             });
         });
     }
@@ -68,6 +61,8 @@ impl eframe::App for HexApp {
             ui.heading("hex diff test (egui UI)");
 
             TableBuilder::new(ui)
+                .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+                .striped(true)
                 .column(Column::auto().resizable(true))
                 .column(Column::auto().resizable(true))
                 .column(Column::remainder())
