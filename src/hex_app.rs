@@ -1,3 +1,4 @@
+use egui::Ui;
 use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 
 struct Pattern {
@@ -42,14 +43,13 @@ impl HexApp {
 
         let row_height = 18.0;
         let num_rows = 10_000;
+
         body.rows(row_height, num_rows, |mut row| {
             let row_index = row.index();
-            row.col(|ui| {
-                ui.label(format!("{:08X}", row_index * hex_grid_width));
-            });
-            row.col(|ui| {
+
+            let add_body_hex_row = |ui: &mut Ui, pattern: &Option<Pattern>| {
                 (0..hex_grid_width).for_each(|i| {
-                    let s = if let Some(pattern) = &self.pattern0 {
+                    let s = if let Some(pattern) = pattern {
                         if let Some(&b) = pattern.data.get(i + row_index * hex_grid_width) {
                             format!("{b:02X}")
                         } else {
@@ -61,7 +61,13 @@ impl HexApp {
 
                     ui.label(s);
                 });
+            };
+
+            row.col(|ui| {
+                ui.label(format!("{:08X}", row_index * hex_grid_width));
             });
+            row.col(|ui| add_body_hex_row(ui, &self.pattern0));
+            row.col(|ui| add_body_hex_row(ui, &self.pattern1));
         });
     }
 }
