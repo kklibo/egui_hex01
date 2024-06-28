@@ -1,4 +1,4 @@
-use egui_extras::{Column, TableBody, TableBuilder};
+use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 
 struct Pattern {
     name: String,
@@ -22,6 +22,18 @@ impl HexApp {
             }),
         }
     }
+}
+
+fn add_header_row(mut header: TableRow<'_, '_>) {
+    header.col(|ui| {
+        ui.heading("addresses0");
+    });
+    header.col(|ui| {
+        ui.heading("hex0");
+    });
+    header.col(|ui| {
+        ui.heading("hex1");
+    });
 }
 
 impl HexApp {
@@ -66,17 +78,7 @@ impl eframe::App for HexApp {
                 .column(Column::auto().resizable(true))
                 .column(Column::auto().resizable(true))
                 .column(Column::remainder())
-                .header(20.0, |mut header| {
-                    header.col(|ui| {
-                        ui.heading("addresses0");
-                    });
-                    header.col(|ui| {
-                        ui.heading("hex0");
-                    });
-                    header.col(|ui| {
-                        ui.heading("hex1");
-                    });
-                })
+                .header(20.0, add_header_row)
                 .body(|body| self.add_body_contents(body));
         });
     }
