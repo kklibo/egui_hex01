@@ -1,5 +1,4 @@
-use egui::style::ScrollStyle;
-use egui::{Ui, Vec2};
+use egui::Vec2;
 use egui_extras::{Column, TableBody, TableBuilder};
 
 struct Pattern {
@@ -26,36 +25,8 @@ impl HexApp {
     }
 }
 
-fn display_address_column(egui_id: &str, ui: &mut Ui, rows: usize) {
-    let hex_width = 16;
-    egui::Grid::new(egui_id)
-        .spacing(Vec2::new(-20f32, 0f32))
-        .striped(true)
-        .show(ui, |ui| {
-            (0..rows).for_each(|c| {
-                ui.label(format!("{:08X}", c * hex_width));
-                ui.end_row();
-            });
-        });
-}
-
-fn display_hex_field(egui_id: &str, ui: &mut Ui, bytes: &[u8]) {
-    let width = 16;
-    egui::Grid::new(egui_id)
-        .spacing(Vec2::new(-20f32, 0f32))
-        .striped(true)
-        .show(ui, |ui| {
-            bytes.chunks(width).for_each(|row| {
-                row.iter().for_each(|&b| {
-                    ui.label(format!("{b:02X}"));
-                });
-                ui.end_row();
-            });
-        });
-}
-
 impl HexApp {
-    fn add_body_contents(&self, mut body: TableBody<'_>) {
+    fn add_body_contents(&self, body: TableBody<'_>) {
         let hex_grid_width = 16;
 
         let mut addresses0 = (0..).map(|c| format!("{:08X}", c * hex_grid_width));
@@ -72,7 +43,8 @@ impl HexApp {
         body.rows(row_height, num_rows, |mut row| {
             let row_index = row.index();
             row.col(|ui| {
-                ui.label(addresses0.next().expect("iterator should be infinite"));
+                //ui.label(addresses0.next().expect("iterator should be infinite"));
+                ui.label(format!("{row_index}"));
             });
             row.col(|ui| {
                 egui::Grid::new(format!("pattern0row{row_index}"))
