@@ -2,8 +2,8 @@ use egui::Ui;
 use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 
 pub struct HexApp {
-    source_name0: String,
-    source_name1: String,
+    source_name0: Option<String>,
+    source_name1: Option<String>,
     pattern0: Option<Vec<u8>>,
     pattern1: Option<Vec<u8>>,
 }
@@ -11,27 +11,29 @@ pub struct HexApp {
 impl HexApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            source_name0: "zeroes0".to_string(),
-            source_name1: "zeroes1".to_string(),
+            source_name0: Some("zeroes0".to_string()),
+            source_name1: Some("zeroes1".to_string()),
             pattern0: Some(vec![0; 1000]),
             pattern1: Some(vec![0; 1000]),
         }
     }
 }
 
-fn add_header_row(mut header: TableRow<'_, '_>) {
-    header.col(|ui| {
-        ui.heading("addresses0");
-    });
-    header.col(|ui| {
-        ui.heading("hex0");
-    });
-    header.col(|ui| {
-        ui.heading("hex1");
-    });
-}
-
 impl HexApp {
+    fn add_header_row(&self, mut header: TableRow<'_, '_>) {
+        let no_pattern = "[none]".to_string();
+
+        header.col(|ui| {
+            ui.heading("address");
+        });
+        header.col(|ui| {
+            ui.heading(self.source_name0.as_ref().unwrap_or_else(|| &no_pattern));
+        });
+        header.col(|ui| {
+            ui.heading(self.source_name1.as_ref().unwrap_or_else(|| &no_pattern));
+        });
+    }
+
     fn add_body_contents(&self, body: TableBody<'_>) {
         let hex_grid_width = 16;
 
@@ -76,7 +78,7 @@ impl eframe::App for HexApp {
                 .column(Column::auto().resizable(true))
                 .column(Column::auto().resizable(true))
                 .column(Column::remainder())
-                .header(20.0, add_header_row)
+                .header(20.0, |header| self.add_header_row(header))
                 .body(|body| self.add_body_contents(body));
         });
     }
