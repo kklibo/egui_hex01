@@ -1,5 +1,5 @@
 use crate::diff::{self, HexCell};
-use egui::Ui;
+use egui::{Color32, Ui};
 use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 use rand::Rng;
 
@@ -85,7 +85,7 @@ impl HexApp {
                             ui.label(format!("{value:02X}"))
                         }
                         Some(&HexCell::Diff { value, source_id }) => {
-                            ui.label(format!("{value:02X}"))
+                            ui.colored_label(Color32::from_rgb(192,64,64) ,format!("{value:02X}"))
                         }
                         Some(&HexCell::Blank) => ui.label("__"),
                         None => ui.label("xx"),
