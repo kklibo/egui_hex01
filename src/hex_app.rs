@@ -43,15 +43,11 @@ impl HexApp {
 
             let add_body_hex_row = |ui: &mut Ui, pattern: &Option<Vec<u8>>| {
                 (0..hex_grid_width).for_each(|i| {
-                    let s = if let Some(pattern) = pattern {
-                        if let Some(&b) = pattern.get(i + row_index * hex_grid_width) {
-                            format!("{b:02X}")
-                        } else {
-                            "__".to_string()
-                        }
-                    } else {
-                        "xx".to_string()
-                    };
+                    let s = pattern
+                        .as_ref()
+                        .and_then(|bytes| bytes.get(i + row_index * hex_grid_width))
+                        .map(|&b| format!("{b:02X}"))
+                        .unwrap_or_else(|| "__".to_string());
 
                     ui.label(s);
                 });
