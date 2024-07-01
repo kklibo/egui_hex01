@@ -1,5 +1,5 @@
 use crate::diff::{self, HexCell};
-use egui::{Color32, Ui};
+use egui::{Color32, RichText, Ui};
 use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 use rand::Rng;
 
@@ -85,15 +85,18 @@ impl HexApp {
                         Some(&HexCell::Same {
                             value,
                             source_id: _,
-                        }) => ui.label(format!("{value:02X}")),
+                        }) => ui.label(RichText::new(format!("{value:02X}")).monospace()),
                         Some(&HexCell::Diff {
                             value,
                             source_id: _,
-                        }) => {
-                            ui.colored_label(Color32::from_rgb(192, 64, 64), format!("{value:02X}"))
-                        }
-                        Some(&HexCell::Blank) => ui.label("__"),
-                        None => ui.label("xx"),
+                        }) => ui.label(
+                            RichText::new(format!("{value:02X}"))
+                                .color(Color32::from_rgb(192, 64, 64))
+                                .monospace(),
+                        ),
+
+                        Some(&HexCell::Blank) => ui.monospace("__"),
+                        None => ui.monospace("xx"),
                     };
                 });
             };
@@ -106,22 +109,23 @@ impl HexApp {
                         Some(&HexCell::Same {
                             value,
                             source_id: _,
-                        }) => ui.label(format!("{}", value as char)),
+                        }) => ui.label(RichText::new(format!("{}", value as char)).monospace()),
                         Some(&HexCell::Diff {
                             value,
                             source_id: _,
-                        }) => ui.colored_label(
-                            Color32::from_rgb(192, 64, 64),
-                            format!("{}", value as char),
+                        }) => ui.label(
+                            RichText::new(format!("{}", value as char))
+                                .color(Color32::from_rgb(192, 64, 64))
+                                .monospace(),
                         ),
-                        Some(&HexCell::Blank) => ui.label("_"),
-                        None => ui.label("x"),
+                        Some(&HexCell::Blank) => ui.monospace("_"),
+                        None => ui.monospace("x"),
                     };
                 });
             };
 
             row.col(|ui| {
-                ui.label(format!("{:08X}", row_index * hex_grid_width));
+                ui.label(RichText::new(format!("{:08X}", row_index * hex_grid_width)).monospace());
             });
             row.col(|ui| add_hex_row(ui, &self.diffs0));
             row.col(|ui| add_ascii_row(ui, &self.diffs0));
