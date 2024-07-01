@@ -57,6 +57,7 @@ impl HexApp {
                 self.update_diffs();
             }
         });
+        header.col(|_| {});
         header.col(|ui| {
             ui.heading(self.source_name1.as_ref().unwrap_or(&no_pattern));
             if ui.button("randomize").clicked() {
@@ -76,16 +77,20 @@ impl HexApp {
         body.rows(row_height, num_rows, |mut row| {
             let row_index = row.index();
 
-            let add_body_hex_row = |ui: &mut Ui, diffs: &Vec<HexCell>| {
+            let add_hex_row = |ui: &mut Ui, diffs: &Vec<HexCell>| {
                 (0..hex_grid_width).for_each(|i| {
                     let cell = diffs.get(i + row_index * hex_grid_width);
 
                     match cell {
-                        Some(&HexCell::Same { value, source_id }) => {
-                            ui.label(format!("{value:02X}"))
-                        }
-                        Some(&HexCell::Diff { value, source_id }) => {
-                            ui.colored_label(Color32::from_rgb(192,64,64) ,format!("{value:02X}"))
+                        Some(&HexCell::Same {
+                            value,
+                            source_id: _,
+                        }) => ui.label(format!("{value:02X}")),
+                        Some(&HexCell::Diff {
+                            value,
+                            source_id: _,
+                        }) => {
+                            ui.colored_label(Color32::from_rgb(192, 64, 64), format!("{value:02X}"))
                         }
                         Some(&HexCell::Blank) => ui.label("__"),
                         None => ui.label("xx"),
@@ -93,11 +98,35 @@ impl HexApp {
                 });
             };
 
+            let add_ascii_row = |ui: &mut Ui, diffs: &Vec<HexCell>| {
+                (0..hex_grid_width).for_each(|i| {
+                    let cell = diffs.get(i + row_index * hex_grid_width);
+
+                    match cell {
+                        Some(&HexCell::Same {
+                            value,
+                            source_id: _,
+                        }) => ui.label(format!("{}", value as char)),
+                        Some(&HexCell::Diff {
+                            value,
+                            source_id: _,
+                        }) => ui.colored_label(
+                            Color32::from_rgb(192, 64, 64),
+                            format!("{}", value as char),
+                        ),
+                        Some(&HexCell::Blank) => ui.label("_"),
+                        None => ui.label("x"),
+                    };
+                });
+            };
+
             row.col(|ui| {
                 ui.label(format!("{:08X}", row_index * hex_grid_width));
             });
-            row.col(|ui| add_body_hex_row(ui, &self.diffs0));
-            row.col(|ui| add_body_hex_row(ui, &self.diffs1));
+            row.col(|ui| add_hex_row(ui, &self.diffs0));
+            row.col(|ui| add_ascii_row(ui, &self.diffs0));
+            row.col(|ui| add_hex_row(ui, &self.diffs1));
+            row.col(|ui| add_ascii_row(ui, &self.diffs1));
         });
     }
 }
@@ -110,6 +139,8 @@ impl eframe::App for HexApp {
             TableBuilder::new(ui)
                 .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
                 .striped(true)
+                .column(Column::auto().resizable(true))
+                .column(Column::auto().resizable(true))
                 .column(Column::auto().resizable(true))
                 .column(Column::auto().resizable(true))
                 .column(Column::remainder())
