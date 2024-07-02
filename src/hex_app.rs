@@ -3,6 +3,19 @@ use egui::{Color32, RichText, Ui};
 use egui_extras::{Column, TableBody, TableBuilder, TableRow};
 use rand::Rng;
 
+#[derive(Debug, PartialEq)]
+enum WhichFile {
+    File0,
+    File1,
+}
+fn drop_select_text(selected: bool) -> &'static str {
+    if selected {
+        "⬇ Loading dropped files here ⬇"
+    } else {
+        "⬇ Load dropped files here ⬇"
+    }
+}
+
 pub struct HexApp {
     source_name0: Option<String>,
     source_name1: Option<String>,
@@ -10,6 +23,7 @@ pub struct HexApp {
     pattern1: Option<Vec<u8>>,
     diffs0: Vec<HexCell>,
     diffs1: Vec<HexCell>,
+    file_drop_target: WhichFile,
 }
 
 fn random_pattern() -> Vec<u8> {
@@ -26,6 +40,7 @@ impl HexApp {
             pattern1: Some(vec![0; 1000]),
             diffs0: vec![],
             diffs1: vec![],
+            file_drop_target: WhichFile::File0,
         };
 
         result.update_diffs();
@@ -51,6 +66,9 @@ impl HexApp {
         });
         header.col(|ui| {
             ui.heading(self.source_name0.as_ref().unwrap_or(&no_pattern));
+            let text = drop_select_text(self.file_drop_target == WhichFile::File0);
+            ui.selectable_value(&mut self.file_drop_target, WhichFile::File0, text)
+                .highlight();
             if ui.button("randomize").clicked() {
                 self.pattern0 = Some(random_pattern());
                 self.source_name0 = Some("random".to_string());
@@ -60,6 +78,9 @@ impl HexApp {
         header.col(|_| {});
         header.col(|ui| {
             ui.heading(self.source_name1.as_ref().unwrap_or(&no_pattern));
+            let text = drop_select_text(self.file_drop_target == WhichFile::File1);
+            ui.selectable_value(&mut self.file_drop_target, WhichFile::File1, text)
+                .highlight();
             if ui.button("randomize").clicked() {
                 self.pattern1 = Some(random_pattern());
                 self.source_name1 = Some("random".to_string());
