@@ -158,6 +158,24 @@ impl HexApp {
 
 impl eframe::App for HexApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.input(|i| {
+            if let Some(dropped_file) = i.raw.dropped_files.first() {
+                if let Some(bytes) = &dropped_file.bytes {
+                    match self.file_drop_target {
+                        WhichFile::File0 => {
+                            self.pattern0 = Some(bytes.to_vec());
+                            self.source_name0 = Some(dropped_file.name.clone());
+                        }
+                        WhichFile::File1 => {
+                            self.pattern1 = Some(bytes.to_vec());
+                            self.source_name1 = Some(dropped_file.name.clone());
+                        }
+                    }
+                    self.update_diffs();
+                }
+            }
+        });
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("hex diff test (egui UI)");
 
